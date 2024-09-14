@@ -1,34 +1,37 @@
-
 import random
-def build_bigram_model(sentences):
-    bigram_model = {}
-    for sentence in sentences:
-        tokens = sentence.split()
-        for i in range(len(tokens) - 1):
-            current_word = tokens[i]
-            next_word = tokens[i + 1]
-            if current_word in bigram_model:
-                bigram_model[current_word].append(next_word)
-            else:
-                bigram_model[current_word] = [next_word]
-    return bigram_model
-def generate_text(bigram_model, start_word, length=10):
-    generated_text = [start_word]
-    for _ in range(length - 1):
-        if start_word in bigram_model:
-            next_word = random.choice(bigram_model[start_word])
-            generated_text.append(next_word)
-            start_word = next_word
+from collections import defaultdict
+
+# Sample text to build the model
+text = """Natural language processing is a fascinating field. 
+It involves the interaction between computers and human languages. 
+With advancements in machine learning, models can now generate human-like text."""
+
+# Step 1: Tokenize the text
+tokens = text.split()
+
+# Step 2: Create a bigram model
+bigrams = defaultdict(list)
+for i in range(len(tokens) - 1):
+    bigrams[tokens[i]].append(tokens[i + 1])
+
+# Step 3: Function to generate text using the bigram model
+def generate_text(bigrams, start_word, num_words=10):
+    current_word = start_word
+    result = [current_word]
+    
+    for _ in range(num_words - 1):
+        if current_word in bigrams:
+            next_word = random.choice(bigrams[current_word])
+            result.append(next_word)
+            current_word = next_word
         else:
-            break
-    return ' '.join(generated_text)
-sentences = [
-    "I love programming in Python.",
-    "Python is a versatile programming language.",
-    "Text generation using bigram models is interesting.",
-    "Natural Language Processing involves analyzing and generating text."
-]
-bigram_model = build_bigram_model(sentences)
-print(bigram_model)
-generated_text = generate_text(bigram_model, start_word="I", length=8)
+            break  # No known next word, stop generation
+    
+    return ' '.join(result)
+
+# Step 4: Generate text starting from a random word
+start_word = random.choice(tokens)
+generated_text = generate_text(bigrams, start_word, num_words=15)
+
 print("Generated Text:", generated_text)
+
