@@ -1,18 +1,15 @@
 import re
-def rule_based_pos_tagging(sentence):
-    tagged_sentence = []
-    for word in sentence:
-        if re.match(r'\b(?:is|am|are|was|were)\b', word, re.IGNORECASE):
-            pos_tag = 'VERB'
-        elif re.match(r'\b(?:the|a|an)\b', word, re.IGNORECASE):
-            pos_tag = 'DET'
-        elif re.match(r'\b(?:quick|brown|lazy)\b', word, re.IGNORECASE):
-            pos_tag = 'ADJ'
-        else:
-            pos_tag = 'NOUN'
-        tagged_sentence.append((word, pos_tag))
-    return tagged_sentence
-sentence_to_tag = ['The', 'quick', 'brown', 'fox', 'is', 'lazy']
-tagged_sentence = rule_based_pos_tagging(sentence_to_tag)
-print("Original Sentence:", sentence_to_tag)
-print("Rule-based POS Tagging Result:", tagged_sentence)
+
+def rule_based_tagging(word):
+    if re.match(r'^[A-Z][a-z]*$', word):
+        return 'NNP'  # Proper noun
+    elif re.match(r'^[a-z]+$', word):
+        return 'NN'  # Noun
+    elif re.match(r'^is|am|are$', word):
+        return 'VB'  # Verb
+    return 'NN'
+
+# Test tagging
+words = ["This", "is", "a", "test", "example"]
+tags = [(word, rule_based_tagging(word)) for word in words]
+print(tags)
