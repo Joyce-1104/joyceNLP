@@ -1,28 +1,21 @@
+from collections import defaultdict, Counter
 import random
-def train_unigram_model(tagged_corpus):
-    unigram_model = {}
-    for sentence in tagged_corpus:
-        for word, pos_tag in sentence:
-            if word in unigram_model:
-                unigram_model[word].append(pos_tag)
-            else:
-                unigram_model[word] = [pos_tag]
-    return unigram_model
-def stochastic_pos_tagging(sentence, unigram_model):
-    tagged_sentence = []
-    for word in sentence:
-        if word in unigram_model:
-            pos_tag = random.choice(unigram_model[word])
-        else:
-            pos_tag = 'NOUN'
-        tagged_sentence.append((word, pos_tag))
-    return tagged_sentence
-tagged_corpus = [
-    [('The', 'DET'), ('quick', 'ADJ'), ('brown', 'ADJ'), ('fox', 'NOUN')],
-    [('Jumped', 'VERB'), ('over', 'PREP'), ('the', 'DET'), ('lazy', 'ADJ'), ('dog', 'NOUN')]
+corpus = [
+    ("This", "DT"), ("is", "VBZ"), ("a", "DT"), ("simple", "JJ"), ("example", "NN"),
+    ("of", "IN"), ("part-of-speech", "NN"), ("tagging", "NN"), ("using", "VBG"),
+    ("NLTK", "NNP")
 ]
-unigram_model = train_unigram_model(tagged_corpus)
-sentence_to_tag = ['The', 'lazy', 'fox', 'jumped']
-tagged_sentence = stochastic_pos_tagging(sentence_to_tag, unigram_model)
-print("Original Sentence:", sentence_to_tag)
-print("Stochastic POS Tagging Result:", tagged_sentence)
+word_tag_counts = defaultdict(Counter)
+tag_counts = Counter()
+for word, tag in corpus:
+    word_tag_counts[word][tag] += 1
+    tag_counts[tag] += 1
+def stochastic_tagging(word):
+    if word in word_tag_counts:
+        return random.choices(list(word_tag_counts[word].keys()), list(word_tag_counts[word].values()))[0]
+    else:
+        return random.choice(list(tag_counts.keys()))
+words = ["This", "is", "a", "tagging", "example"]
+tags = [(word, stochastic_tagging(word)) for word in words]
+print(tags)
+
