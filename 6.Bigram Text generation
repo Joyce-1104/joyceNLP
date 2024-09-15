@@ -1,37 +1,19 @@
 import random
-from collections import defaultdict
 
-# Sample text to build the model
-text = """Natural language processing is a fascinating field. 
-It involves the interaction between computers and human languages. 
-With advancements in machine learning, models can now generate human-like text."""
-
-# Step 1: Tokenize the text
-tokens = text.split()
-
-# Step 2: Create a bigram model
-bigrams = defaultdict(list)
-for i in range(len(tokens) - 1):
-    bigrams[tokens[i]].append(tokens[i + 1])
-
-# Step 3: Function to generate text using the bigram model
-def generate_text(bigrams, start_word, num_words=10):
-    current_word = start_word
-    result = [current_word]
-    
-    for _ in range(num_words - 1):
-        if current_word in bigrams:
-            next_word = random.choice(bigrams[current_word])
-            result.append(next_word)
-            current_word = next_word
+def generate_text(text, start_word, num_words=20):
+    words = text.split()
+    bigrams = {words[i]: words[i+1] for i in range(len(words)-1)}
+    generated_text = [start_word]
+    for _ in range(num_words):
+        current_word = generated_text[-1]
+        next_word = bigrams.get(current_word)
+        if next_word:
+            generated_text.append(next_word)
         else:
-            break  # No known next word, stop generation
-    
-    return ' '.join(result)
+            break
+    return ' '.join(generated_text)
 
-# Step 4: Generate text starting from a random word
-start_word = random.choice(tokens)
-generated_text = generate_text(bigrams, start_word, num_words=15)
-
-print("Generated Text:", generated_text)
-
+# Example usage
+text = "The quick brown fox jumps over the lazy dog"
+generated_text = generate_text(text, start_word="The", num_words=15)
+print("Generated text:", generated_text)
