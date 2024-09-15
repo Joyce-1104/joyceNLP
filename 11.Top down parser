@@ -1,59 +1,39 @@
+class SimpleTopDownParser:
+    def __init__(self, grammar, start_symbol):
+        self.grammar = grammar
+        self.start_symbol = start_symbol
 
-class Parser:
-    def __init__(self, tokens):
-        self.tokens = tokens
-        self.current_token = None
-        self.index = -1
-        self.advance()
-    def advance(self):
-        self.index += 1
-        if self.index < len(self.tokens):
-            self.current_token = self.tokens[self.index]
-        else:
-            self.current_token = None
-    def parse(self):
-        return self.expr()
-    def expr(self):
-        result = self.term()
-        while self.current_token in ('+', '-'):
-            operator = self.current_token
-            self.advance()
-            right = self.term()
-            if operator == '+':
-                result += right
-            elif operator == '-':
-                result -= right
-        return result
-    def term(self):
-        result = self.factor()
-        while self.current_token in ('*', '/'):
-            operator = self.current_token
-            self.advance()
-            right = self.factor()
-            if operator == '*':
-                result *= right
-            elif operator == '/':
-                if right == 0:
-                    raise ZeroDivisionError("Division by zero")
-                result /= right
-        return result
-    def factor(self):
-        token = self.current_token
-        self.advance()
-        if token == '(':
-            result = self.expr()
-            if self.current_token != ')':
-                raise SyntaxError("Expected closing parenthesis")
-            self.advance()
-            return result
-        elif token.isdigit():
-            return int(token)
-        else:
-            raise SyntaxError("Invalid syntax")
-def parse_input(input_string):
-    tokens = input_string.replace(' ', '').replace('\t', '').split(',')
-    parser = Parser(tokens)
-    return parser.parse()
-input_string = '5, *, (, 3, +, 7,), +, 10'
-result = parse_input(input_string)
-print(f"Result: {result}")
+    def parse(self, tokens):
+        return self._parse(tokens, [self.start_symbol])
+
+    def _parse(self, tokens, stack):
+        if not stack and not tokens:
+            return True
+        if not stack or not tokens:
+            return False
+
+        current = stack.pop(0)
+        if current.isupper():  # Non-terminal
+            for rule in self.grammar[current]:
+                if self._parse(tokens, list(rule) + stack):
+                    return True
+        else:  # Terminal
+            if tokens[0] == current:
+                return self._parse(tokens[1:], stack)
+
+        return False
+
+# Example grammar and test
+grammar = {
+    'S': [['NP', 'VP']],
+    'NP': [['Det', 'N']],
+    'VP': [['V', 'NP']],
+    'Det': [['the']],
+    'N': [['cat'], ['dog']],
+    'V': [['chased'], ['saw']]
+}
+
+parser = SimpleTopDownParser(grammar, 'S')
+tokens = ['the', 'cat', 'chased', 'the', 'dog']
+print(parser.parse(tokens))  # Output: True (if sentence is valid)
+
